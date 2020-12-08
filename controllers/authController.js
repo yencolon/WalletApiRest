@@ -11,8 +11,9 @@ exports.login = (req, res, next) => {
         request: { email: email, password: password },
       });
     })
-    .then((resp) => {
-      res.send(resp[0].return.item);
+    .then((respXML) => {
+      res.respXML = respXML;
+      next();
     })
     .catch((e) => {
       res.status(500).send(new CommonResponse("Error"));
@@ -20,18 +21,25 @@ exports.login = (req, res, next) => {
 };
 
 exports.register = (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, lastname, document, phone, email } = req.body;
 
   soapClient
     .createSoapClient(soapApiURL + "/soap/auth?wsdl")
     .then((client) => {
       return client.registerAsync({
-        request: { name: name, email: email, password: password },
+        request: {
+          name: name,
+          lastname: lastname,
+          phone: phone,
+          document: document,
+          email: email,
+          password: "12345678",
+        },
       });
     })
-    .then((resp) => {
-      console.log(resp);
-      res.send(resp[0].return.item);
+    .then((respXML) => {
+      res.respXML = respXML;
+      next();
     })
     .catch((e) => {
       res.send(e.root.Envelope.Body);
