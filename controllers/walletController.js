@@ -1,6 +1,5 @@
 const soapClient = require("../utils/soap");
 const soapApiURL = require("../config");
-const CommonResponse = require("../utils/commonResponse");
 
 exports.addCreditToWallet = (req, res, next) => {
   const { document, phone, amount } = req.body;
@@ -17,7 +16,6 @@ exports.addCreditToWallet = (req, res, next) => {
       });
     })
     .then((respXML) => {
-      res.id = 'secrwto';
       res.respXML = respXML;
       next();
     })
@@ -29,7 +27,6 @@ exports.addCreditToWallet = (req, res, next) => {
 exports.createPurchase = (req, res, next) => {
   const { document, amount } = req.body;
   const token = Math.floor(Math.random() * 10000 + 1);
-  
   soapClient
     .createSoapClient(soapApiURL + "/soap/wallet?wsdl")
     .then((client) => {
@@ -42,8 +39,6 @@ exports.createPurchase = (req, res, next) => {
       });
     })
     .then((respXML) => {
-      re = 'secredto'
-      res.setHeader('Set-Cookie', 'sessionId=secreto');
       res.respXML = respXML;
       next();
     })
