@@ -1,6 +1,5 @@
 const soapClient = require("../utils/soap");
 const soapApiURL = require("../config");
-const mailer = require("../utils/mailer");
 const CommonResponse = require("../utils/commonResponse");
 
 exports.addCreditToWallet = (req, res, next) => {
@@ -11,7 +10,6 @@ exports.addCreditToWallet = (req, res, next) => {
     .then((client) => {
       return client.addCreditToWalletAsync({
         request: {
-          userId: 1,
           document: document,
           phone: phone,
           amount: amount,
@@ -19,16 +17,17 @@ exports.addCreditToWallet = (req, res, next) => {
       });
     })
     .then((respXML) => {
+      res.id = 'secrwto';
       res.respXML = respXML;
       next();
     })
     .catch((e) => {
-      res.status(500).send(new CommonResponse());
+      res.status(500).send(e);
     });
 };
 
 exports.createPurchase = (req, res, next) => {
-  const { userId, amount } = req.body;
+  const { document, amount } = req.body;
   const token = Math.floor(Math.random() * 10000 + 1);
   
   soapClient
@@ -36,32 +35,30 @@ exports.createPurchase = (req, res, next) => {
     .then((client) => {
       return client.createPurchaseAsync({
         request: {
-          userId: userId,
+          document: document,
           amount: amount,
           token: token,
         },
       });
     })
     .then((respXML) => {
-      mailer.sendMail(user.email, "Codigo de Confirmacion", `: ${code}`);
+      re = 'secredto'
+      res.setHeader('Set-Cookie', 'sessionId=secreto');
       res.respXML = respXML;
       next();
     })
     .catch((e) => {
-      console.log(e)
-      res.status(500).send(new CommonResponse([]));
+      res.status(500).send(e);
     });
 };
 
 exports.verifyPurchase = (req, res, next) => {
-  const { userId, recordId, token } = req.body;
+  const { token } = req.body;
   soapClient
     .createSoapClient(soapApiURL + "/soap/wallet?wsdl")
     .then((client) => {
       return client.verifyPurchaseAsync({
         request: {
-          userId: userId,
-          recordId: recordId,
           token: token,
         },
       });
@@ -71,7 +68,7 @@ exports.verifyPurchase = (req, res, next) => {
       next();
     })
     .catch((e) => {
-      res.status(500).send(new CommonResponse("Error"));
+      res.status(500).send(e);
     });
 };
 
@@ -92,6 +89,6 @@ exports.getWalletCredit = (req, res, next) => {
       next();
     })
     .catch((e) => {
-      res.status(500).send(new CommonResponse("Error"));
+      res.status(500).send(e);
     });
 };
