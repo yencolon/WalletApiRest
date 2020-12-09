@@ -1,32 +1,36 @@
 const soapClient = require("../utils/soap");
 const soapApiURL = require("../config");
+const mailer = require("../utils/mailer");
 const CommonResponse = require("../utils/commonResponse");
 
 exports.addCreditToWallet = (req, res, next) => {
-  const { userId, document, phone, amount } = req.body;
+  const { document, phone, amount } = req.body;
+ 
   soapClient
     .createSoapClient(soapApiURL + "/soap/wallet?wsdl")
     .then((client) => {
       return client.addCreditToWalletAsync({
         request: {
-          userId: userId,
+          userId: 1,
           document: document,
           phone: phone,
           amount: amount,
         },
       });
     })
-    .then((resp) => {
-      res.send(resp[0].return.item);
+    .then((respXML) => {
+      res.respXML = respXML;
+      next();
     })
     .catch((e) => {
-      res.status(500).send(new CommonResponse("Error"));
+      res.status(500).send(new CommonResponse());
     });
 };
 
 exports.createPurchase = (req, res, next) => {
   const { userId, amount } = req.body;
-  const token = "123";
+  const token = Math.floor(Math.random() * 10000 + 1);
+  
   soapClient
     .createSoapClient(soapApiURL + "/soap/wallet?wsdl")
     .then((client) => {
@@ -38,17 +42,19 @@ exports.createPurchase = (req, res, next) => {
         },
       });
     })
-    .then((resp) => {
-      res.send(resp[0].return.item);
+    .then((respXML) => {
+      mailer.sendMail(user.email, "Codigo de Confirmacion", `: ${code}`);
+      res.respXML = respXML;
+      next();
     })
     .catch((e) => {
-      res.status(500).send(new CommonResponse("Error"));
+      console.log(e)
+      res.status(500).send(new CommonResponse([]));
     });
 };
 
 exports.verifyPurchase = (req, res, next) => {
-  const { userId, recordId } = req.body;
-  const token = "123";
+  const { userId, recordId, token } = req.body;
   soapClient
     .createSoapClient(soapApiURL + "/soap/wallet?wsdl")
     .then((client) => {
@@ -60,8 +66,9 @@ exports.verifyPurchase = (req, res, next) => {
         },
       });
     })
-    .then((resp) => {
-      res.send(resp[0].return.item);
+    .then((respXML) => {
+      res.respXML = respXML;
+      next();
     })
     .catch((e) => {
       res.status(500).send(new CommonResponse("Error"));
@@ -69,18 +76,20 @@ exports.verifyPurchase = (req, res, next) => {
 };
 
 exports.getWalletCredit = (req, res, next) => {
-  const { userId } = req.body;
+  const { document, phone } = req.body;
   soapClient
     .createSoapClient(soapApiURL + "/soap/wallet?wsdl")
     .then((client) => {
       return client.getWalletCreditAsync({
         request: {
-          userId: userId,
+          document: document,
+          phone: phone,
         },
       });
     })
-    .then((resp) => {
-      res.send(resp[0].return.item);
+    .then((respXML) => {
+      res.respXML = respXML;
+      next();
     })
     .catch((e) => {
       res.status(500).send(new CommonResponse("Error"));
