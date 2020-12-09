@@ -26,6 +26,6 @@ server.use('/auth', authRoutes);
 server.use('/wallet', walletRouter);
 
 
-server.listen(3001, () => {
+server.listen(process.env.PORT || 5000, () => {
   console.log('running on port 3001');
 });
