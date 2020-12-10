@@ -7,7 +7,6 @@ module.exports = (req, res, next) => {
       xml: res.respXML
     })
   } 
-
   res.data = new CommonResponse(res.respXML[0].return.item);
   res.status(res.data.code).send(res.data);
 };

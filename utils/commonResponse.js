@@ -4,14 +4,19 @@ class CommonResponse {
     data;
     
     constructor(data){
-        console.log(data)
         this.message = data.value.message.$value;
         this.code = parseInt(data.value.status.$value);
-        this.data = data.value.data.$value;
+        this.data = this.formatData(data.value.data);
     }
 
-    status505(){
-        return ;
+    formatData(xmlData){
+        let formattedData =  {};
+        Object.keys(xmlData).forEach((key, _) => {
+            if(key !== 'attributes') 
+                formattedData[key] = xmlData[key].$value
+        } );
+
+        return formattedData;
     }
 }
 

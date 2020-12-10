@@ -3,7 +3,7 @@ const soapApiURL = require("../config");
 
 exports.addCreditToWallet = (req, res, next) => {
   const { document, phone, amount } = req.body;
- 
+
   soapClient
     .createSoapClient(soapApiURL + "/soap/wallet?wsdl")
     .then((client) => {
@@ -26,7 +26,8 @@ exports.addCreditToWallet = (req, res, next) => {
 
 exports.createPurchase = (req, res, next) => {
   const { document, amount } = req.body;
-  const token = Math.floor(Math.random() * 10000 + 1);
+  const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  
   soapClient
     .createSoapClient(soapApiURL + "/soap/wallet?wsdl")
     .then((client) => {
@@ -39,6 +40,7 @@ exports.createPurchase = (req, res, next) => {
       });
     })
     .then((respXML) => {
+      // req.session.recordId = 1;
       res.respXML = respXML;
       next();
     })
@@ -48,12 +50,14 @@ exports.createPurchase = (req, res, next) => {
 };
 
 exports.verifyPurchase = (req, res, next) => {
-  const { token } = req.body;
+  const { token , recordId } = req.body;
+ 
   soapClient
     .createSoapClient(soapApiURL + "/soap/wallet?wsdl")
     .then((client) => {
       return client.verifyPurchaseAsync({
         request: {
+          recordId: parseInt(recordId),
           token: token,
         },
       });
