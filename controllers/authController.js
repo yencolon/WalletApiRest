@@ -12,6 +12,11 @@ exports.login = (req, res, next) => {
       });
     })
     .then((respXML) => {
+      // req.session.user = {
+      //   isLogged: true, 
+      //   email: email,
+      //   password: password
+      // };
       res.respXML = respXML;
       next();
     })
@@ -21,7 +26,7 @@ exports.login = (req, res, next) => {
 };
 
 exports.register = (req, res, next) => {
-  const { name, lastname, document, phone, email } = req.body;
+  const { name, lastname, document, phone, email , password } = req.body;
 
   soapClient
     .createSoapClient(soapApiURL + "/soap/auth?wsdl")
@@ -33,7 +38,7 @@ exports.register = (req, res, next) => {
           phone: phone,
           document: document,
           email: email,
-          password: "12345678",
+          password: password,
         },
       });
     })
