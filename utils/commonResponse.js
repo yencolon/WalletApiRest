@@ -2,11 +2,13 @@ class CommonResponse {
     message;
     code;
     data;
+    xml;
     
     constructor(data){
+        this.data = this.formatData(data.value.data);
         this.message = data.value.message.$value;
         this.code = parseInt(data.value.status.$value);
-        this.data = this.formatData(data.value.data);
+        this.xml = data;
     }
 
     formatData(xmlData){
