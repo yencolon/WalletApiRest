@@ -26,8 +26,10 @@
     "eslint-plugin-prettier": "^3.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "express-validator": "^6.8.0",
     "mongodb": "^3.6.3",
     "mongoose": "^5.11.7",
+    "nodemailer": "^6.4.17",
     "prettier": "^2.2.1",
     "session-file-store": "^1.5.0",
     "soap": "^0.35.0"

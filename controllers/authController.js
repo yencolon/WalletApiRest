@@ -82,7 +82,6 @@ exports.resetPassword = (req, res, next) => {
 
         user.resetToken = token;
         user.resetTokenExpiration = Date.now() + 3600000;
-
         return user.save();
       })
       .then((result) => {
@@ -92,6 +91,28 @@ exports.resetPassword = (req, res, next) => {
         console.log(err);
       });
   });
+};
+
+exports.changePassword = (req, res, next) => {
+  const token = req.params.token;
+  const { newPassword, confirmNewPassword } = req.body;
+  User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
+    .then((user) => {
+      bcrypt
+        .hash(newPassword, 12)
+        .then((hashedPassword) => {
+          user.password = hashedPassword;
+          user.resetToken = undefined;
+          user.resetTokenExpiration = undefined;
+          return user.save();
+        })
+        .then((result) => {
+          return res.status(200).send('Done');
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 // OldMethods, the connect to a SOAP service hosted in another domain.
