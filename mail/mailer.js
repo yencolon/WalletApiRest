@@ -7,8 +7,8 @@ mailer.sendMail = (email, subject, msg, html) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'medianaranjatest@gmail.com',
-      pass: '123456mr',
+      user: '',
+      pass: '',
     },
   });
 
