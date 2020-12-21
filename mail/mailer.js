@@ -13,7 +13,7 @@ mailer.sendMail = (email, subject, msg, html) => {
   });
 
   return transporter.sendMail({
-    from: "'Media Naranja' <medianaranjatest@gmail.com>",
+    from: "",
     to: email,
     subject: subject,
     text: msg,
