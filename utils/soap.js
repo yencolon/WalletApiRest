@@ -1,4 +1,4 @@
-const soap = require("soap");
+const soap = require('soap');
 
 exports.createSoapClient = (url) => {
   return soap
@@ -6,7 +6,7 @@ exports.createSoapClient = (url) => {
     .then((client) => {
       return client;
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
 };

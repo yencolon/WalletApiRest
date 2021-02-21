@@ -1,18 +1,25 @@
 const soapClient = require('../utils/soap');
 const soapApiURL = require('../config');
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
 const CommonResponse = require('../utils/commonResponse');
 const User = require('../models/user');
+const crypto = require('crypto');
+const passwordHasher = require('../security/passwordHasher');
+const { validationResult } = require('express-validator');
 
 exports.loginUser = (req, res, next) => {
   const { email, password } = req.body;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).send(errors.array());
+  }
+
   User.findOne({ email: email }).then((user) => {
     if (!user) {
       return res.status(401).send('Invalid');
     }
-    bcrypt
-      .compare(password, user.password)
+    passwordHasher
+      .comparePasswords(password, user.password)
       .then((doMatch) => {
         if (doMatch) {
           req.session.isLogged = true;
@@ -39,35 +46,41 @@ exports.logoutUser = (req, res, next) => {
 
 exports.registerUser = (req, res, next) => {
   const { name, lastname, document, phone, email, password } = req.body;
+  const errors = validationResult(req);
 
-  User.findOne({ email: email })
-    .then((user) => {
-      if (user) return res.status(400).send('error');
-      return bcrypt
-        .hash(password, 12)
-        .then((hashedPassword) => {
-          const user = new User({
-            name: name,
-            lastname: lastname,
-            document: document,
-            phone: phone,
-            email: email,
-            password: hashedPassword,
-          });
+  if (!errors.isEmpty()) {
+    return res.status(422).send(errors.array());
+  }
 
-          return user.save();
-        })
-        .then((result) => {
-          return res.status(201).send(result);
-        })
-        .catch((err) => {
-          return res.status(400).send(err);
-        });
+  passwordHasher
+    .hashPassword(password)
+    .then((hashedPassword) => {
+      const user = new User({
+        name: name,
+        lastname: lastname,
+        document: document,
+        phone: phone,
+        email: email,
+        password: hashedPassword,
+      });
+
+      return user.save();
     })
-    .catch((err) => console.log(err));
+    .then((result) => {
+      return res.status(201).send(result);
+    })
+    .catch((err) => {
+      return res.status(400).send(err);
+    });
 };
 
 exports.resetPassword = (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).send(errors.array());
+  }
+
   crypto.randomBytes(32, (err, buffer) => {
     if (err) {
       console.log(err);
@@ -95,11 +108,17 @@ exports.resetPassword = (req, res, next) => {
 
 exports.changePassword = (req, res, next) => {
   const token = req.params.token;
-  const { newPassword, confirmNewPassword } = req.body;
+  const { newPassword } = req.body;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).send(errors.array());
+  }
+
   User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
     .then((user) => {
-      bcrypt
-        .hash(newPassword, 12)
+      passwordHasher
+        .hashPassword(newPassword)
         .then((hashedPassword) => {
           user.password = hashedPassword;
           user.resetToken = undefined;
@@ -107,6 +126,7 @@ exports.changePassword = (req, res, next) => {
           return user.save();
         })
         .then((result) => {
+          console.log(result);
           return res.status(200).send('Done');
         });
     })
