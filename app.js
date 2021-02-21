@@ -6,8 +6,7 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const authRoutes = require('./routes/authRoutes');
 const walletRouter = require('./routes/walletRoutes');
 const User = require('./models/user');
-const MONGODB_URI =
-  'mongodb+srv://yen:15241524@haptico-1.ptmm3.mongodb.net/wallet?retryWrites=true&w=majority';
+const MONGODB_URI = '';
 
 const { ApolloServer } = require('apollo-server-express');
 const typeDefs = require('./graphql/schema');
